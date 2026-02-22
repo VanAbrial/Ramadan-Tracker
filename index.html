@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Android/Mobile Optimized -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#4A7A40" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Ramadan 1447H" />
+  <title>Ramadan Tracker 1447H</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/glass.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-particles" id="particles"></div>
+
+  <!-- ══ TOPBAR (mobile) ══ -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <span class="logo-icon">☪</span>
+      <span class="logo-text">Ramadan <span class="logo-accent">1447H</span></span>
+    </div>
+    <button class="nav-notif" id="btnNotif" title="Aktifkan Notifikasi">
+      <span id="notifIcon">🔔</span>
+    </button>
+  </header>
+
+  <!-- ══ DESKTOP NAVBAR ══ -->
+  <nav class="navbar glass-nav">
+    <div class="nav-logo">
+      <span class="logo-icon">☪</span>
+      <span class="logo-text">Ramadan <span class="logo-accent">1447H</span></span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#dashboard" class="nav-link active" data-page="dashboard">🏠 Dashboard</a></li>
+      <li><a href="#tracker"   class="nav-link" data-page="tracker">📊 Tracker</a></li>
+      <li><a href="#quran"     class="nav-link" data-page="quran">📖 Al-Qur'an</a></li>
+      <li><a href="#reminder"  class="nav-link" data-page="reminder">⏰ Reminder</a></li>
+    </ul>
+    <button class="nav-notif" id="btnNotifDesktop" title="Aktifkan Notifikasi">
+      <span id="notifIconDesktop">🔔</span>
+    </button>
+  </nav>
+
+  <!-- ══ PAGES ══ -->
+  <main class="main-content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section class="page active" id="page-dashboard">
+      <div class="container">
+        <div class="page-header">
+          <h1 class="page-title">Selamat Berpuasa <span class="wave">🌙</span></h1>
+          <p class="page-subtitle" id="hijriDate">Ramadan 1447H • <span id="todayDate"></span></p>
+        </div>
+
+        <!-- Countdown -->
+        <div class="countdown-wrapper">
+          <div class="glass-card countdown-card" id="card-imsak">
+            <div class="countdown-label">⏳ Menuju Imsak</div>
+            <div class="countdown-time" id="countdown-imsak">--:--:--</div>
+            <div class="countdown-sub" id="time-imsak">04:30 WIB</div>
+          </div>
+          <div class="glass-card countdown-card" id="card-buka">
+            <div class="countdown-label">🌅 Berbuka</div>
+            <div class="countdown-time" id="countdown-buka">--:--:--</div>
+            <div class="countdown-sub" id="time-buka">18:00 WIB</div>
+          </div>
+          <div class="glass-card countdown-card" id="card-tarawih">
+            <div class="countdown-label">🕌 Tarawih</div>
+            <div class="countdown-time" id="countdown-tarawih">--:--:--</div>
+            <div class="countdown-sub" id="time-tarawih">19:30 WIB</div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="glass-card progress-card">
+          <h3 class="card-title">Progress Ramadan 1447H</h3>
+          <p class="card-sub">19 Februari – 20 Maret 2026</p>
+          <div class="ramadan-progress-bar">
+            <div class="progress-fill" id="ramadanProgress"></div>
+            <span class="progress-label" id="ramadanProgressLabel">0%</span>
+          </div>
+          <div id="daysDots" class="days-dots"></div>
+          <div class="progress-stats">
+            <div class="stat-item">
+              <span class="stat-num" id="statDay">0</span>
+              <span class="stat-lbl">Hari Berjalan</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">30</span>
+              <span class="stat-lbl">Total Hari</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num" id="statSisa">30</span>
+              <span class="stat-lbl">Hari Tersisa</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ibadah Summary -->
+        <div class="ibadah-grid">
+          <div class="glass-card ibadah-summary-card">
+            <div class="summary-icon">🕋</div>
+            <div class="summary-info">
+              <div class="summary-title">Puasa</div>
+              <div class="summary-value"><span id="sumPuasa">0</span>/30</div>
+              <div class="summary-bar"><div class="summary-fill green" id="barPuasa"></div></div>
+            </div>
+          </div>
+          <div class="glass-card ibadah-summary-card">
+            <div class="summary-icon">🧎</div>
+            <div class="summary-info">
+              <div class="summary-title">Sholat 5 Waktu</div>
+              <div class="summary-value"><span id="sumSholat">0</span>/<span id="sumSholatMax">150</span></div>
+              <div class="summary-bar"><div class="summary-fill blue" id="barSholat"></div></div>
+            </div>
+          </div>
+          <div class="glass-card ibadah-summary-card">
+            <div class="summary-icon">🌙</div>
+            <div class="summary-info">
+              <div class="summary-title">Tarawih</div>
+              <div class="summary-value"><span id="sumTarawih">0</span>/30</div>
+              <div class="summary-bar"><div class="summary-fill gold" id="barTarawih"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sholat Times -->
+        <div class="glass-card sholat-today-card">
+          <h3 class="card-title">Jadwal Sholat Hari Ini</h3>
+          <div class="sholat-times-grid">
+            <div class="sholat-time-item glass-inner" id="st-subuh">
+              <span class="st-name">Subuh</span>
+              <span class="st-time">04:41</span>
+              <span class="st-icon">🌄</span>
+            </div>
+            <div class="sholat-time-item glass-inner" id="st-dzuhur">
+              <span class="st-name">Dzuhur</span>
+              <span class="st-time">12:10</span>
+              <span class="st-icon">☀️</span>
+            </div>
+            <div class="sholat-time-item glass-inner" id="st-ashar">
+              <span class="st-name">Ashar</span>
+              <span class="st-time">15:20</span>
+              <span class="st-icon">🌤</span>
+            </div>
+            <div class="sholat-time-item glass-inner" id="st-maghrib">
+              <span class="st-name">Maghrib</span>
+              <span class="st-time">18:18</span>
+              <span class="st-icon">🌅</span>
+            </div>
+            <div class="sholat-time-item glass-inner" id="st-isya">
+              <span class="st-name">Isya</span>
+              <span class="st-time">19:28</span>
+              <span class="st-icon">🌃</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TRACKER ===== -->
+    <section class="page" id="page-tracker">
+      <div class="container">
+        <div class="page-header">
+          <h1 class="page-title">Tracker Ibadah 📊</h1>
+          <p class="page-subtitle">Catat & pantau ibadahmu selama Ramadan</p>
+        </div>
+
+        <!-- Donut -->
+        <div class="glass-card overall-card">
+          <h3 class="card-title">Persentase Keseluruhan</h3>
+          <div class="donut-wrapper">
+            <svg class="donut-svg" viewBox="0 0 200 200">
+              <circle class="donut-bg"   cx="100" cy="100" r="80" />
+              <circle class="donut-fill" cx="100" cy="100" r="80" id="donutFill"
+                stroke-dasharray="0 502" stroke-dashoffset="125" />
+            </svg>
+            <div class="donut-center">
+              <span class="donut-pct" id="overallPct">0%</span>
+              <span class="donut-lbl">Konsisten</span>
+            </div>
+          </div>
+          <div class="overall-breakdown">
+            <div class="breakdown-item"><span class="dot green"></span><span>Puasa: <strong id="pctPuasa">0%</strong></span></div>
+            <div class="breakdown-item"><span class="dot blue"></span><span>Sholat: <strong id="pctSholat">0%</strong></span></div>
+            <div class="breakdown-item"><span class="dot gold"></span><span>Tarawih: <strong id="pctTarawih">0%</strong></span></div>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="glass-card tracker-table-card">
+          <h3 class="card-title">Catatan Harian</h3>
+          <div class="table-scroll">
+            <table class="tracker-table" id="trackerTable">
+              <thead>
+                <tr>
+                  <th>Tgl</th><th>Hari</th><th>Puasa</th>
+                  <th>Subuh</th><th>Dzuhur</th><th>Ashar</th>
+                  <th>Maghrib</th><th>Isya</th><th>Tarawih</th>
+                </tr>
+              </thead>
+              <tbody id="trackerBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== QURAN ===== -->
+    <section class="page" id="page-quran">
+      <div class="container">
+        <div class="page-header">
+          <h1 class="page-title">Al-Qur'an Digital 📖</h1>
+          <p class="page-subtitle">Baca per Surah atau per Juz</p>
+        </div>
+
+        <div class="quran-tabs glass-card">
+          <button class="qtab active" id="tab-surah" onclick="switchQuranTab('surah')">📚 Per Surah</button>
+          <button class="qtab" id="tab-juz" onclick="switchQuranTab('juz')">📖 Per Juz</button>
+        </div>
+
+        <!-- Surah Panel -->
+        <div class="quran-panel" id="panel-surah">
+          <div class="glass-card quran-nav-card">
+            <input class="glass-input" type="text" id="surahSearch" placeholder="🔍 Cari Surah..." />
+            <div class="surah-list" id="surahList"></div>
+          </div>
+          <div class="glass-card quran-reader-card" id="surahReader">
+            <div class="reader-placeholder">
+              <div class="placeholder-icon">☪</div>
+              <p>Pilih Surah untuk mulai membaca</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Juz Panel -->
+        <div class="quran-panel hidden" id="panel-juz">
+          <div class="glass-card quran-nav-card">
+            <div class="juz-list" id="juzList"></div>
+          </div>
+          <div class="glass-card quran-reader-card" id="juzReader">
+            <div class="reader-placeholder">
+              <div class="placeholder-icon">☪</div>
+              <p>Pilih Juz untuk mulai membaca</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REMINDER ===== -->
+    <section class="page" id="page-reminder">
+      <div class="container">
+        <div class="page-header">
+          <h1 class="page-title">Reminder & Jadwal ⏰</h1>
+          <p class="page-subtitle">Atur pengingat ibadahmu</p>
+        </div>
+
+        <div class="reminder-grid">
+          <div class="glass-card notif-card">
+            <h3 class="card-title">Status Notifikasi</h3>
+            <div class="notif-status" id="notifStatus">
+              <div class="status-icon" id="statusIcon">🔕</div>
+              <div class="status-text" id="statusText">Notifikasi belum diaktifkan</div>
+              <button class="btn-glass" id="btnEnableNotif">Aktifkan Sekarang</button>
+            </div>
+          </div>
+
+          <div class="glass-card custom-reminder-card">
+            <h3 class="card-title">Tambah Pengingat</h3>
+            <div class="reminder-form" id="reminderForm">
+              <input type="text"  class="glass-input" id="reminderTitle" placeholder="Judul pengingat..." />
+              <input type="time"  class="glass-input" id="reminderTime" />
+              <select class="glass-input" id="reminderRepeat">
+                <option value="daily">Setiap Hari</option>
+                <option value="once">Sekali</option>
+              </select>
+              <button class="btn-glass btn-submit" onclick="ReminderSystem.addCustom()">➕ Tambah Reminder</button>
+            </div>
+          </div>
+
+          <div class="glass-card reminder-list-card">
+            <h3 class="card-title">Daftar Pengingat</h3>
+            <div class="reminder-items" id="reminderItems"></div>
+          </div>
+
+          <div class="glass-card schedule-card">
+            <h3 class="card-title">Jadwal Tetap Ramadan</h3>
+            <div class="schedule-list">
+              <div class="schedule-item glass-inner"><span class="sch-icon">🌙</span><div class="sch-info"><div class="sch-name">Sahur / Imsak</div><div class="sch-time">04:00 – 04:33 WIB</div></div><div class="sch-badge">Aktif</div></div>
+              <div class="schedule-item glass-inner"><span class="sch-icon">🌄</span><div class="sch-info"><div class="sch-name">Subuh</div><div class="sch-time">04:41 – 04:43 WIB</div></div><div class="sch-badge">Aktif</div></div>
+              <div class="schedule-item glass-inner"><span class="sch-icon">☀️</span><div class="sch-info"><div class="sch-name">Dzuhur</div><div class="sch-time">12:04 – 12:10 WIB</div></div><div class="sch-badge">Aktif</div></div>
+              <div class="schedule-item glass-inner"><span class="sch-icon">🌤</span><div class="sch-info"><div class="sch-name">Ashar</div><div class="sch-time">15:08 – 15:21 WIB</div></div><div class="sch-badge">Aktif</div></div>
+              <div class="schedule-item glass-inner"><span class="sch-icon">🌅</span><div class="sch-info"><div class="sch-name">Buka Puasa / Maghrib</div><div class="sch-time">18:07 – 18:18 WIB</div></div><div class="sch-badge">Aktif</div></div>
+              <div class="schedule-item glass-inner"><span class="sch-icon">🌃</span><div class="sch-info"><div class="sch-name">Isya</div><div class="sch-time">19:15 – 19:28 WIB</div></div><div class="sch-badge">Aktif</div></div>
+              <div class="schedule-item glass-inner"><span class="sch-icon">🕌</span><div class="sch-info"><div class="sch-name">Tarawih</div><div class="sch-time">19:35 – 19:48 WIB</div></div><div class="sch-badge">Aktif</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ BOTTOM NAV (Android) ══ -->
+  <nav class="bottom-nav">
+    <button class="bnav-item active" data-page="dashboard">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">Dashboard</span>
+    </button>
+    <button class="bnav-item" data-page="tracker">
+      <span class="bnav-icon">📊</span>
+      <span class="bnav-label">Tracker</span>
+    </button>
+    <button class="bnav-item" data-page="quran">
+      <span class="bnav-icon">📖</span>
+      <span class="bnav-label">Al-Qur'an</span>
+    </button>
+    <button class="bnav-item" data-page="reminder">
+      <span class="bnav-icon">⏰</span>
+      <span class="bnav-label">Reminder</span>
+    </button>
+  </nav>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/db.js"></script>
+  <script src="js/reminder.js"></script>
+  <script src="js/tracker.js"></script>
+  <script src="js/quran.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

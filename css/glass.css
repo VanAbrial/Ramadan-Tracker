@@ -1,0 +1,37 @@
+/* =============================================
+   glass.css — Light Mode Glass
+   Background mint/sage putih
+   ============================================= */
+
+/* Countdown cards */
+#card-imsak  { background: rgba(255,255,255,0.70); }
+#card-buka   { background: rgba(255,255,255,0.70); }
+#card-tarawih{ background: rgba(255,255,255,0.70); }
+
+/* Overall card */
+.overall-card { text-align: center; }
+
+/* Quran */
+.quran-reader-card { background: rgba(255,255,255,0.72); }
+.quran-nav-card    { background: rgba(255,255,255,0.65); }
+
+/* Reminder */
+.notif-card,
+.custom-reminder-card,
+.reminder-list-card,
+.schedule-card { background: rgba(255,255,255,0.65); }
+
+/* Accent glow di pojok progress card */
+.progress-card::after {
+  content: '';
+  position: absolute; top: -20px; right: -20px;
+  width: 130px; height: 130px;
+  background: radial-gradient(circle, rgba(0,200,83,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Loading spinner warna gelap untuk light mode */
+.loading-spinner {
+  border-color: rgba(0,100,50,0.12);
+  border-top-color: #00C853;
+}

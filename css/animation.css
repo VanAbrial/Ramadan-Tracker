@@ -1,0 +1,84 @@
+/* =============================================
+   animations.css — Keyframes & Transitions
+   ============================================= */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wave {
+  0%,100% { transform: rotate(0deg); }
+  20%      { transform: rotate(-14deg); }
+  40%      { transform: rotate(14deg); }
+  60%      { transform: rotate(-7deg); }
+  80%      { transform: rotate(7deg); }
+}
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 8px rgba(0,200,83,0.5); transform: scale(1); }
+  50%      { box-shadow: 0 0 18px rgba(0,200,83,0.8), 0 0 30px rgba(0,200,83,0.3); transform: scale(1.1); }
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  8%   { opacity: 0.5; }
+  92%  { opacity: 0.15; }
+  100% { transform: translateY(-8vh) rotate(360deg); opacity: 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 6px rgba(0,200,83,0.25); }
+  50%      { box-shadow: 0 0 16px rgba(0,200,83,0.5); }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: scale(0.97) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes tickIn {
+  0%   { transform: scale(0); }
+  65%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 28px; height: 28px;
+  border: 2.5px solid rgba(255,255,255,0.12);
+  border-top-color: #00C853;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 1.8rem auto 0.8rem;
+}
+
+/* Particle */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: floatUp linear infinite;
+}
+
+/* Utility */
+.animate-fadeInUp { animation: fadeInUp 0.4s ease both; }
+.animate-cardIn   { animation: cardIn 0.35s ease both; }
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.10s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.20s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+.sholat-time-item.active-sholat {
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+.tracker-check.checked {
+  animation: tickIn 0.22s ease;
+}
