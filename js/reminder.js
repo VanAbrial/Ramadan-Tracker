@@ -1,5 +1,6 @@
 /* =============================================
    reminder.js — Notification & Reminder System
+   + Service Worker integration untuk background notif
    ============================================= */
 
 const ReminderSystem = (() => {
@@ -7,31 +8,54 @@ const ReminderSystem = (() => {
   let notifPermission = 'default';
   let checkInterval = null;
   let lastNotified = {};
+  let swRegistration = null;
 
   /* ── Init ── */
   function init() {
     notifPermission = Notification.permission;
     updateUI();
 
-    // Check notifications every minute
+    // Register Service Worker
+    registerSW();
+
+    // Fallback: cek tiap 30 detik kalau SW belum siap
     clearInterval(checkInterval);
     checkInterval = setInterval(checkScheduled, 30000);
     checkScheduled();
 
-    // Render reminder list
     renderReminderList();
     renderNotifStatus();
 
-    // Form submit
-    const form = document.getElementById('reminderForm');
-    if (form) form.addEventListener('submit', handleAddReminder);
-
-    // Enable button
     const btn = document.getElementById('btnEnableNotif');
     if (btn) btn.addEventListener('click', requestPermission);
 
     const btn2 = document.getElementById('btnNotif');
     if (btn2) btn2.addEventListener('click', requestPermission);
+  }
+
+  /* ── Register Service Worker ── */
+  async function registerSW() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      swRegistration = await navigator.serviceWorker.register('/sw.js');
+      console.log('✅ Service Worker registered:', swRegistration.scope);
+      syncRemindersToSW();
+    } catch (err) {
+      console.warn('SW registration failed:', err);
+    }
+  }
+
+  /* ── Sync reminders ke Service Worker ── */
+  function syncRemindersToSW() {
+    if (!swRegistration || !swRegistration.active) {
+      setTimeout(syncRemindersToSW, 1000);
+      return;
+    }
+    const reminders = DB.getReminders();
+    swRegistration.active.postMessage({
+      type: 'SCHEDULE_NOTIFICATIONS',
+      reminders
+    });
   }
 
   /* ── Permission ── */
@@ -49,6 +73,7 @@ const ReminderSystem = (() => {
     if (result === 'granted') {
       showToast('✅ Notifikasi berhasil diaktifkan!');
       sendNotif('🌙 Ramadan Tracker', 'Notifikasi telah diaktifkan. Semangat ibadah!', '☪');
+      syncRemindersToSW();
     } else {
       showToast('❌ Notifikasi ditolak');
     }
@@ -57,28 +82,35 @@ const ReminderSystem = (() => {
   /* ── Send Notification ── */
   function sendNotif(title, body, icon = '🕌') {
     if (notifPermission !== 'granted') return;
-    try {
-      new Notification(title, {
+
+    // Pakai SW kalau tersedia (bisa muncul walau tab tertutup)
+    if (swRegistration) {
+      swRegistration.showNotification(title, {
         body,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">' + icon + '</text></svg>',
-        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">☪</text></svg>',
-        tag: title
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: title,
+        vibrate: [200, 100, 200]
       });
-    } catch(e) {
-      console.warn('Notif failed:', e);
+    } else {
+      try {
+        new Notification(title, { body, tag: title });
+      } catch(e) {
+        console.warn('Notif failed:', e);
+      }
     }
   }
 
-  /* ── Fixed Schedule Notifications ── */
+  /* ── Fixed Schedule Notifications (fallback saat tab terbuka) ── */
   const FIXED_SCHEDULE = [
     { key: 'sahur',   h: 3,  m: 45, title: '🌙 Sahur!',          body: 'Waktunya sahur! Jangan sampai terlewat ya.' },
     { key: 'imsak',   h: 4,  m: 15, title: '⏰ Imsak 15 Menit!', body: 'Segera hentikan makan & minum.' },
-    { key: 'subuh',   h: 4,  m: 30, title: '🌄 Waktu Subuh',     body: 'Saatnya sholat Subuh. Yuk bangkit!' },
-    { key: 'dzuhur',  h: 12, m: 0,  title: '☀️ Waktu Dzuhur',    body: 'Jangan lupa sholat Dzuhur.' },
-    { key: 'ashar',   h: 15, m: 15, title: '🌤 Waktu Ashar',     body: 'Waktunya sholat Ashar.' },
-    { key: 'maghrib', h: 18, m: 0,  title: '🌅 Buka Puasa!',     body: 'Alhamdulillah, saatnya berbuka!' },
-    { key: 'isya',    h: 19, m: 15, title: '🌃 Waktu Isya',      body: 'Jangan lupa sholat Isya.' },
-    { key: 'tarawih', h: 19, m: 30, title: '🕌 Waktu Tarawih',   body: 'Yuk sholat Tarawih berjamaah!' },
+    { key: 'subuh',   h: 4,  m: 41, title: '🌄 Waktu Subuh',     body: 'Saatnya sholat Subuh. Yuk bangkit!' },
+    { key: 'dzuhur',  h: 12, m: 10, title: '☀️ Waktu Dzuhur',    body: 'Jangan lupa sholat Dzuhur.' },
+    { key: 'ashar',   h: 15, m: 18, title: '🌤 Waktu Ashar',     body: 'Waktunya sholat Ashar.' },
+    { key: 'maghrib', h: 18, m: 18, title: '🌅 Buka Puasa!',     body: 'Alhamdulillah, saatnya berbuka!' },
+    { key: 'isya',    h: 19, m: 27, title: '🌃 Waktu Isya',      body: 'Jangan lupa sholat Isya.' },
+    { key: 'tarawih', h: 19, m: 48, title: '🕌 Waktu Tarawih',   body: 'Yuk sholat Tarawih berjamaah!' },
   ];
 
   function checkScheduled() {
@@ -87,7 +119,6 @@ const ReminderSystem = (() => {
     const m = now.getMinutes();
     const dayKey = DB.dateKey(now);
 
-    // Check fixed schedule
     if (DB.isRamadanDay(now)) {
       FIXED_SCHEDULE.forEach(sched => {
         const notifKey = `${dayKey}_${sched.key}`;
@@ -98,7 +129,6 @@ const ReminderSystem = (() => {
       });
     }
 
-    // Check custom reminders
     const reminders = DB.getReminders();
     reminders.forEach(r => {
       const [rh, rm] = r.time.split(':').map(Number);
@@ -110,17 +140,22 @@ const ReminderSystem = (() => {
     });
   }
 
-  /* ── UI: Reminder Form ── */
-  function handleAddReminder(e) {
-    e.preventDefault();
-    const title = document.getElementById('reminderTitle').value.trim();
-    const time  = document.getElementById('reminderTime').value;
+  /* ── UI: Add Custom Reminder ── */
+  function addCustom(e) {
+    if (e) e.preventDefault();
+    const title  = document.getElementById('reminderTitle').value.trim();
+    const time   = document.getElementById('reminderTime').value;
     const repeat = document.getElementById('reminderRepeat').value;
-    if (!title || !time) return;
+    if (!title || !time) {
+      showToast('⚠️ Isi judul dan waktu dulu!');
+      return;
+    }
 
     DB.addReminder({ title, time, repeat });
     renderReminderList();
-    e.target.reset();
+    syncRemindersToSW();
+    document.getElementById('reminderTitle').value = '';
+    document.getElementById('reminderTime').value  = '';
     showToast('✅ Pengingat ditambahkan!');
   }
 
@@ -131,7 +166,7 @@ const ReminderSystem = (() => {
     const list = DB.getReminders();
 
     if (list.length === 0) {
-      el.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:0.85rem;text-align:center;padding:1rem">Belum ada pengingat</p>';
+      el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem">Belum ada pengingat</p>';
       return;
     }
 
@@ -151,8 +186,8 @@ const ReminderSystem = (() => {
   function renderNotifStatus() {
     const statusIcon = document.getElementById('statusIcon');
     const statusText = document.getElementById('statusText');
-    const btn = document.getElementById('btnEnableNotif');
-    const navIcon = document.getElementById('notifIcon');
+    const btn        = document.getElementById('btnEnableNotif');
+    const navIcon    = document.getElementById('notifIcon');
 
     if (!statusIcon) return;
 
@@ -172,21 +207,18 @@ const ReminderSystem = (() => {
     }
   }
 
-  function updateUI() {
-    renderNotifStatus();
-  }
+  function updateUI() { renderNotifStatus(); }
 
-  /* ── Public Delete ── */
   function deleteReminder(id) {
     DB.deleteReminder(id);
     renderReminderList();
+    syncRemindersToSW();
     showToast('🗑 Pengingat dihapus');
   }
 
-  /* ── Escape HTML ── */
   function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  return { init, requestPermission, deleteReminder, sendNotif, renderReminderList };
+  return { init, requestPermission, deleteReminder, sendNotif, renderReminderList, addCustom };
 })();
